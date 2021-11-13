@@ -205,7 +205,7 @@ scene.add(ambientLight)
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1.6)
 
 /**  make wider light to cast shadow in bigger zone */
-const lightDistance = 50;
+const lightDistance = 40;
 directionalLight.castShadow = true;
 directionalLight.shadow.camera.left = - lightDistance;
 directionalLight.shadow.camera.right = lightDistance;
