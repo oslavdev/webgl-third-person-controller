@@ -1,6 +1,8 @@
 # Third person controller
 
-Example of modern third person controller implementation in WebGL with Three.js library. 
+Example of a simple third person controller implementation in WebGL with Three.js library.
+
+![Emerald Shop](readme/finalresult.gif?raw=true "Third person controller")
 
 ## Setup
 
