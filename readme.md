@@ -4,6 +4,8 @@ Example of a simple third person controller implementation in WebGL with Three.j
 
 ![Emerald Shop](readme/finalresult.gif?raw=true "Third person controller")
 
+Live Demo: https://webgl-third-person-controller.vercel.app/
+
 ## Setup
 
 ``` bash
