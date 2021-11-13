@@ -13,7 +13,7 @@ yarn
 # Run the local server at localhost:3000
 yarn run dev
 
-# Build for production in the dist/ directory
+# Build for production in the public/ directory
 yarn run build
 ```
 
