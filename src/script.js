@@ -4,6 +4,12 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 
+/**
+ * 
+ * Theme
+ * 
+ */
+
 const Theme = {
     backgroundColor: 0xffffff
 };
@@ -11,6 +17,7 @@ const Theme = {
 /**
  * Sizes
  */
+
  const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
@@ -31,10 +38,10 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
-// Canvas
+// Canvas selector
 const canvas = document.querySelector('canvas.canvasGL')
 
-// Scene
+// Init Scene
 const scene = new THREE.Scene()
 const updateAllMaterials = () =>
 {
@@ -49,12 +56,12 @@ const updateAllMaterials = () =>
     })
 }
 
+// TODO add skybox
 scene.background = new THREE.Color( Theme.backgroundColor );
 
 /**
- * Camera
+ *  Perspective Camera
  */
-// Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 1000)
 camera.position.set( 0, 0.8, 0 );
 camera.lookAt(new THREE.Vector3(0,0,0));
@@ -62,9 +69,10 @@ scene.add(camera)
 
 
 /**
+ * 
+ * 
  * Character controls helper.
  * These helpers provide smooth camera movement through proxy objects.
- * 
  *  
  * */ 
 
@@ -121,13 +129,13 @@ gltfLoader.load(
         gltf.scene.scale.set(1, 1, 1)
         character = gltf.scene // make scene available outside this scope
         characterAnimation = gltf.animations // make animations available outside this scope
-        character.add(follower) // apply follower object to model
+        character.add(follower) // apply follower object to the model
         gltf.scene.castShadow = true //enable shadows
         gltf.scene.receiveShadow = true
 
         scene.add(gltf.scene)
 
-        camera.lookAt(character.position); // make camera look at character be default
+        camera.lookAt(character.position); // set camera to look at the character by default
 
         // Se animations
         mixer = new THREE.AnimationMixer(character)
@@ -145,27 +153,27 @@ gltfLoader.load(
 /**
  * Floor
  */
- const pathToBlackHexagonGrassTexture = (texture) => `/textures/floor/${texture}.jpg` 
+ const pathToGrassTexture = (texture) => `/textures/floor/${texture}.jpg` 
  
  /** Load textures */
  const textureLoader = new THREE.TextureLoader()
  const repeat = 40;
- const map = textureLoader.load(pathToBlackHexagonGrassTexture("GroundForest003_COL_VAR1_3K"))
+ const map = textureLoader.load(pathToGrassTexture("GroundForest003_COL_VAR1_3K"))
  map.wrapS = THREE.RepeatWrapping
  map.wrapT = THREE.RepeatWrapping
  map.repeat.set(repeat, repeat)
 
- const displacementMap = textureLoader.load(pathToBlackHexagonGrassTexture("GroundForest003_DISP_3K"))
+ const displacementMap = textureLoader.load(pathToGrassTexture("GroundForest003_DISP_3K"))
  displacementMap.wrapS = THREE.RepeatWrapping
  displacementMap.wrapT = THREE.RepeatWrapping
  displacementMap.repeat.set(repeat, repeat)
 
- const normalMap = textureLoader.load(pathToBlackHexagonGrassTexture("GroundForest003_NRM_3K"))
+ const normalMap = textureLoader.load(pathToGrassTexture("GroundForest003_NRM_3K"))
  normalMap.wrapS = THREE.RepeatWrapping
  normalMap.wrapT = THREE.RepeatWrapping
  normalMap.repeat.set(repeat, repeat)
 
- const roughnessMap = textureLoader.load(pathToBlackHexagonGrassTexture("GroundForest003_ROUGH_3K"))
+ const roughnessMap = textureLoader.load(pathToGrassTexture("GroundForest003_ROUGH_3K"))
  roughnessMap.wrapS = THREE.RepeatWrapping
  roughnessMap.wrapT = THREE.RepeatWrapping
  roughnessMap.repeat.set(repeat, repeat)
@@ -204,7 +212,7 @@ scene.add(ambientLight)
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1.6)
 
-/**  make wider light to cast shadow in bigger zone */
+/** cast shadows in wider zone */
 const lightDistance = 40;
 directionalLight.castShadow = true;
 directionalLight.shadow.camera.left = - lightDistance;
@@ -218,7 +226,8 @@ directionalLight.position.set(-5, 35, 100)
 scene.add(directionalLight)
 
 
-// Orbit Controls
+// Orbit Controls (vertical mouse control)
+// TODO add joystick mobile control
 const controls = new OrbitControls(camera, canvas)
 controls.target.set(0, 0.75, 0)
 controls.enableDamping = true
@@ -261,6 +270,7 @@ function crossfadeAnimation(newAction){
     newAction.crossFadeFrom(action[prevAnim], 0.3)
 }
 
+//** Tick function to update screen */
 const tick = () =>
 {
     updateAllMaterials()
