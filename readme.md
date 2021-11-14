@@ -4,6 +4,8 @@ Example of a simple third person controller implementation in WebGL with Three.j
 
 ![Emerald Shop](readme/finalresult.gif?raw=true "Third person controller")
 
+Live Demo: https://webgl-third-person-controller.vercel.app/
+
 ## Setup
 
 ``` bash
@@ -13,7 +15,7 @@ yarn
 # Run the local server at localhost:3000
 yarn run dev
 
-# Build for production in the dist/ directory
+# Build for production in the public/ directory
 yarn run build
 ```
 
