@@ -412,11 +412,11 @@ const tick = () =>
        
         /**
          * Update position of the character 
-         * to point camera
+         * for the camera
          */
   
-        const position = new THREE.Vector3(character.position.x, 2.2, character.position.z)
-        camera.lookAt( position )
+        const newPosition = new THREE.Vector3(character.position.x, 2.2, character.position.z)
+        camera.lookAt( newPosition )
       }
 
     // Update orbit controls
