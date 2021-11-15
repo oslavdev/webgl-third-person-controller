@@ -41,7 +41,7 @@ window.addEventListener('resize', () =>
 // Canvas selector
 const canvas = document.querySelector('canvas.canvasGL')
 
-// Init Scene
+// Initialize Scene
 const scene = new THREE.Scene()
 const updateAllMaterials = () =>
 {
@@ -56,12 +56,16 @@ const updateAllMaterials = () =>
     })
 }
 
+/** Set scene background color */
 // TODO add skybox
 scene.background = new THREE.Color( Theme.backgroundColor );
 
+
 /**
- *  Perspective Camera
+ *  Create Perspective Camera
  */
+
+
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 1000)
 camera.position.set( 0, 0.8, 0 );
 camera.lookAt(new THREE.Vector3(0,0,0));
@@ -71,38 +75,40 @@ scene.add(camera)
 /**
  * 
  * 
- * Character controls helper.
- * These helpers provide smooth camera movement through proxy objects.
+ * Character controls helper variables.
+ * We create these vectors to calculate camera offset and adjust its position
+ * see tick function
  *  
  * */ 
 
-let t = new THREE.Vector3;
-let dir = new THREE.Vector3;
-let a = new THREE.Vector3;
-let b = new THREE.Vector3;
-const distance = 5.2;
-let velocity = 0.0;
-let speed = 0.0;
+const character_position = new THREE.Vector3;
+const camera_position = new THREE.Vector3;
+const tail_position = new THREE.Vector3;
+const camera_offset = new THREE.Vector3;
+
+const distance = 4;
+let velocity = 0.0; // velocity provides smooth speed gain
+let speed = 0.0; // default idle speed
+
+// Helper objects to provide camera movements
 let tail =  new THREE.Object3D;
 let follower = new THREE.Object3D;
 
-follower.position.y = 0.5
-follower.position.z = -distance;
+tail.position.y = 0.5
+tail.position.z = -distance;
 
-tail.add(camera)
-
+follower.add(camera) 
 
 /** Initialize keyboard and add event listeners to control character */
 
 let keyboard = {};
 
 function keyDown(event) {
-
   keyboard[event.keyCode] = true;
 }
 
 function keyUp(event){
-	keyboard[event.keyCode] = false;
+   keyboard[event.keyCode] = false;
 }
 
 window.addEventListener('keydown', keyDown);
@@ -126,18 +132,26 @@ gltfLoader.load(
     '/models/Character/Character.glb',
     (gltf) =>
     {
+        /** Scale character  */
         gltf.scene.scale.set(1, 1, 1)
-        character = gltf.scene // make scene available outside this scope
-        characterAnimation = gltf.animations // make animations available outside this scope
-        character.add(follower) // apply follower object to the model
-        gltf.scene.castShadow = true //enable shadows
+
+        /** Make scene and animation available outside the scope */
+        character = gltf.scene 
+        characterAnimation = gltf.animations 
+
+        /** Apply tail object to the character */
+        character.add(tail) 
+
+        /** Enable shadows */
+        gltf.scene.castShadow = true 
         gltf.scene.receiveShadow = true
 
         scene.add(gltf.scene)
 
-        camera.lookAt(character.position); // set camera to look at the character by default
+        /** Set camare to look at the character by default */
+        camera.lookAt(character.position);
 
-        // Se animations
+        // Get animations
         mixer = new THREE.AnimationMixer(character)
         action = {
             idle: mixer.clipAction(characterAnimation[0]),
@@ -145,8 +159,8 @@ gltfLoader.load(
             walk: mixer.clipAction(characterAnimation[2]),
             back: mixer.clipAction(characterAnimation[3])
         }
-        prevAnim = "idle"; //default idle animation
-        action.idle.play()
+        prevAnim = "idle"; // set default idle animation
+        action.idle.play() // play animation
     }
 )
 
@@ -270,23 +284,26 @@ function crossfadeAnimation(newAction){
     newAction.crossFadeFrom(action[prevAnim], 0.3)
 }
 
-//** Tick function to update screen */
+//** Tick function to update */
 const tick = () =>
 {
+    /** Calculate shades */
     updateAllMaterials()
+
+    /** Count elapsed time */
     const elapsedTime = clock.getElapsedTime()
     const deltaTime = elapsedTime - previousTime
     previousTime = elapsedTime
 
-    // Model animation
+    /** Update animation mixer on each frame */
     if(mixer)
     {
         mixer.update(deltaTime)
     }
 
-    /*** Character control */
+    /*** Character controls  */
 
-    // Running
+    /** Running forwards */
     if (keyboard[87] && keyboard[16]) {
         speed = 0.2;
 
@@ -298,7 +315,7 @@ const tick = () =>
         }
       }
       
-      //Walking
+     /** Walking forward */
     if (keyboard[87] && !keyboard[16]) {
         speed = 0.09;
 
@@ -310,7 +327,7 @@ const tick = () =>
         }
     }
 
-       //Walking backwards
+     /** Walking backwards */
     if (keyboard[83]) {
         speed = -0.09;
 
@@ -322,7 +339,7 @@ const tick = () =>
         }
     }
 
-        //Stopped
+    /** Ilde state */
     if (!keyboard[87] && !keyboard[83]) {
         speed = 0;
         if(action.idle && prevAnim != "idle"){
@@ -334,7 +351,7 @@ const tick = () =>
       }
 
 
-      /* Turns */
+      /* Turn character */
       if (keyboard[65]) {
        if(character){
         character.rotateY(0.05);
@@ -347,24 +364,60 @@ const tick = () =>
       }
 
       if(character){
+
+
+        /**
+         * 
+         *  Move character along Z axis
+         */
+   
         velocity += (speed - velocity) * .3;
+
         character.translateZ(velocity);
-  
-        a.lerp(character.position, 0.4);
-        b.copy(tail.position);
-  
-        dir.copy( a ).sub( b ).normalize();
-        const dis = a.distanceTo( b ) - distance;
-        tail.position.addScaledVector( dir, dis );
-        tail.position.lerp(t, 0.02);
-        t.setFromMatrixPosition(follower.matrixWorld);
+
+       
+        /** 
+         * Smoothly move character position Vector3 to actiual character position 
+         * 
+         */
+        character_position.lerp(character.position, 0.4);
+
+        /**
+         * Set default camera position Vector3 to the follower
+         */
+        camera_position.copy(follower.position);
+
+        /**
+         * Set tail_position Vector3 to absolute tail position
+         */
+        tail_position.setFromMatrixPosition(tail.matrixWorld);
+
+
+        /*  
+        *
+        *    Calculate a offset camera vector, based on the character's 
+        *   position. Offset represented by the direction vector3 from
+        *   the camera (follower) to the character 
+        */
+
+        camera_offset.copy( character_position ).sub( camera_position ).normalize();
+        const distanceDifference = character_position.distanceTo( camera_position ) - distance;
+        follower.position.addScaledVector( camera_offset, distanceDifference );
+
+
+        /**
+         * Lerp camera to the tail position
+         */
+        follower.position.lerp(tail_position, 0.02);
+       
+        /**
+         * Update position of the character 
+         * to point camera
+         */
   
         const position = new THREE.Vector3(character.position.x, 2.2, character.position.z)
         camera.lookAt( position )
       }
-
-    
-     
 
     // Update orbit controls
     controls.update()
