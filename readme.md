@@ -3,9 +3,10 @@
 Example of a simple third person controller implementation in WebGL with Three.js library.
 
 
-![Emerald Shop](readme/finalresult.gif?raw=true "Third person controller")
+![ThirdpersonController](readme/finalresult.gif?raw=true "Third person controller")
 
 Live Demo: https://webgl-third-person-controller.vercel.app/
+
 Article: https://oslavdev.medium.com/third-person-controller-in-three-js-b643bec50f92
 
 ## Setup
